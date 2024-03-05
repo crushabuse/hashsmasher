@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <h1>🔨 Hashsmasher</h1>
+    <p>Smashing hashes, one at a time.</p>
+
+    <label for="hash">SHA256 hash</label>
+    <input
+      placeholder="62f100bfa4c2aa8f07427e448b8660e0930da1146266c8bb32b5292e2cd0fb40"
+      type="text"
+      name="hash"
+      id="hash"
+    />
+    <button onclick="lookup()">Lookup</button>
+    <p>
+      Notice, if you want to use the DeWalt lookup system, please use the API.
+      (<code>/lookup/dewalt/:hash</code>)
+    </p>
+    <p>
+      By the way, have you heard of
+      <a href="https://crushabuse.xyz">crushabuse</a>, the bash daemon that
+      monitors you whenever you get a new zk-crush? (please star it)
+    </p>
+    <div id="results"></div>
+    <footer>
+      <script>
+        async function lookup() {
+          const lookup = await (
+            await fetch(
+              `/lookup/ryobi/${document.getElementById("hash").value}`
+            )
+          ).json();
+
+          if (!lookup.ok)
+            return (document.getElementById(
+              "results"
+            ).innerHTML = `<h2>Lookup results</h2>
+   <p>Failed to lookup the user. This is still in development. Last database update: ${new Date(
+     lookup.metadata.last_checked
+   ).toLocaleString("en-US", { timeStyle: "short", dateStyle: "long" })} </p>`);
+          document.getElementById("results").innerHTML = ` <ul>
+        <li>Name: ${lookup.name}</li>
+        <li>Last database update: ${new Date(
+          lookup.metadata.last_checked
+        ).toLocaleString("en-US", {
+          timeStyle: "short",
+          dateStyle: "long",
+        })}</li>
+    </ul>`;
+        }
+      </script>
+      <p>
+        &copy; 2024 crushabuse.xyz. Website is licensed under the MIT license.
+        Data retrieved is not licensed for privacy reasons.
+      </p>
+    </footer>
+  </body>
+</html>
