@@ -6,88 +6,85 @@
       href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🔨 Hashsmasher</title>
+    <meta name="title" content="🔨 Hashsmasher" />
+    <meta
+      name="description"
+      content="Smashing zkcrush hashes, one hash at a time."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hashsmasher.confessions.wtf/" />
+    <meta property="og:title" content="🔨 Hashsmasher" />
+    <meta
+      property="og:description"
+      content="Smashing zkcrush hashes, one hash at a time."
+    />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://hashsmasher.confessions.wtf/"
+    />
+    <meta property="twitter:title" content="🔨 Hashsmasher" />
+    <meta
+      property="twitter:description"
+      content="Smashing zkcrush hashes, one hash at a time."
+    />
   </head>
   <body>
-    <h1>crushabuse</h1>
-    <h2>Tips</h2>
-    <ul>
-      <li>People don't usually include middle names</li>
-      <li>Don't add any white space</li>
-      <li>If you have a hypenated name, try it without the second part</li>
-      <li>You can also try just your first name, or a nickname.</li>
-    </ul>
-    <input placeholder="What's your name?" id="champ" />
-    <button onclick="example()">Look it up</button>
-    <h2>List of crushes found</h2>
-    <div id="crushes">
-      <ul id="james"></ul>
-    </div>
+    <h1>🔨 Hashsmasher</h1>
+    <p>Smashing zkcrush hashes, one at a time.</p>
+
+    <label for="hash">SHA256 hash</label>
+    <input
+      placeholder="62f100bfa4c2aa8f07427e448b8660e0930da1146266c8bb32b5292e2cd0fb40"
+      type="text"
+      name="hash"
+      id="hash"
+    />
+    <button onclick="lookup()">Lookup</button>
+    <p>
+      Notice, if you want to use the DeWalt lookup system, please use the API.
+      (<code>/lookup/dewalt/:hash</code>)
+    </p>
+    <p>
+      While you're here, check out
+      <a href="https://crushabuse.xyz">crushabuse</a>, the bash daemon that
+      monitors you whenever you get a new zkcrush.
+    </p>
+    <div id="results"></div>
     <footer>
       <script>
-        var urlParams = new URLSearchParams(window.location.search);
-        var name = urlParams.get("name");
-        if (name && name != "null") {
-          document.querySelector("#champ").value = name;
-          example();
-        }
-        if (window.location.hash.substring(1))
-          document.querySelector("#champ").value = decodeURIComponent(
-            window.location.hash.substring(1)
-          );
-        async function sha256(message) {
-          // encode as UTF-8
-          const msgBuffer = new TextEncoder().encode(message);
+        async function lookup() {
+            const hash = document.getElementById("hash").value
+          const lookup = await (
+            await fetch(
+              `/lookup/ryobi/${document.getElementById("hash").value}`
+            )
+          ).json();
 
-          // hash the message
-          const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-
-          // convert ArrayBuffer to Array
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-          // convert bytes to hex string
-          const hashHex = hashArray
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
-          return hashHex;
-        }
-        async function example() {
-          document.getElementById("james").innerHTML =
-            "Loading... Please wait...";
-          var hash = "";
-          if (
-            /\b[A-Fa-f0-9]{64}\b/.test(document.getElementById("champ").value)
-          ) {
-            hash = document
-              .getElementById("champ")
-              .value.toLowerCase()
-              .toString();
-          } else {
-            hash = await sha256(
-              document.getElementById("champ").value.toLowerCase().toString()
-            );
-          }
-
-          fetch("https://crushabuse.glitch.me/api/check/" + hash)
-            .then((chungus) => chungus.json())
-            .then((chungus) => {
-              document.getElementById("james").innerHTML = "";
-              if (chungus.length == 0)
-                document.getElementById("james").innerHTML =
-                  "sorry, no results found for " +
-                  document.getElementById("champ").value;
-              chungus.forEach((chung) => {
-                document.getElementById("james").innerHTML += `<li><a href="${
-                  chung.permalink
-                }">${chung.permalink}</a> (posted ${new Date(
-                  chung.date * 1000
-                ).toLocaleString("en-US", {
-                  timeStyle: "short",
-                  dateStyle: "long",
-                })})</li>`;
-              });
-            });
+          if (!lookup.ok)
+            return (document.getElementById(
+              "results"
+            ).innerHTML = `<h2>Lookup results</h2>
+   <p>Failed to lookup the user. This is usually due to the user not having their real name set on Slack. You can still attempt to <a href="https://crushabuse.confessions.wtf/?name=${encodeURIComponent(hash)}">lookup previous confessions with the hash</a>. Last database update: ${new Date(
+     lookup.metadata.last_checked
+   ).toLocaleString("en-US", { timeStyle: "short", dateStyle: "long" })} </p>`);
+          document.getElementById("results").innerHTML = ` <ul>
+        <li>Name: ${lookup.name}</li>
+        <li>Last database update: ${new Date(
+          lookup.metadata.last_checked
+        ).toLocaleString("en-US", {
+          timeStyle: "short",
+          dateStyle: "long",
+        })}</li>
+        <li>Previous zkcrushes: <a href="https://crushabuse.confessions.wtf/?name=${encodeURIComponent(hash)}">Click here</a></li>
+    </ul>`;
         }
       </script>
+      <p>
+        &copy; 2024 crushabuse.xyz. Website is licensed under the MIT license.
+        Data retrieved is not licensed for privacy reasons.
+      </p>
     </footer>
   </body>
 </html>
